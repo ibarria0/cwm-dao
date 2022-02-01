@@ -4,6 +4,7 @@
 
 require('dotenv').config();
 require("@nomiclabs/hardhat-waffle");
+require("@typechain/hardhat");
 require("./tasks/faucet");
 require("./tasks/USDC_faucet");
 
