@@ -1,9 +1,9 @@
+import { useContract } from "../hooks/contract";
 import type { NextPage } from "next";
 import Head from "next/head";
-import Image from "next/image";
-import styles from "../styles/Home.module.css";
 
 const Home: NextPage = () => {
+  const { brokerContract, erc20Contract, signer } = useContract();
   return (
     <>
       <Head>

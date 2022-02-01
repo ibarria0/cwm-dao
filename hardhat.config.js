@@ -8,7 +8,7 @@ require("@typechain/hardhat");
 require("./tasks/faucet");
 require("./tasks/USDC_faucet");
 
-const { POLYGON_MAIN_URL, MUMBAI_URL, PRIVATE_KEY } = process.env;
+// const { POLYGON_MAIN_URL, MUMBAI_URL, PRIVATE_KEY } = process.env;
 
 module.exports = {
   solidity: {
@@ -16,14 +16,17 @@ module.exports = {
   },
   networks: {
       hardhat: {
-          forking: {
-            url: POLYGON_MAIN_URL,
-            blockNumber: 24365626 
-          },
-      },
-      mumbai: {
-         url: MUMBAI_URL,
-         accounts: [`0x${PRIVATE_KEY}`]
+      //     forking: {
+      //       url: POLYGON_MAIN_URL,
+      //       blockNumber: 24365626 
+      //     },
+      // },
+      // mumbai: {
+      //    url: MUMBAI_URL,
+      //    accounts: [`0x${PRIVATE_KEY}`]
       }
    },
+    typechain: {
+      outDir: 'frontend/typechain',
+    }
 };
