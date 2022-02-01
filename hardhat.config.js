@@ -13,6 +13,9 @@ module.exports = {
   solidity: {
       compilers: [{version: '0.8.2'}],
   },
+  paths: {
+    artifacts: './frontend/src/artifacts'
+  },
   networks: {
       hardhat: {
           forking: {
