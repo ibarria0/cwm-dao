@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
-import { providers } from "ethers";
-import { CwmBroker } from "../typechain/CwmBroker";
-import { CwmBroker__factory } from "../typechain/factories/CwmBroker__factory";
 import { JsonRpcSigner } from "@ethersproject/providers";
-import { ERC20, ERC20__factory } from "../typechain";
+import { providers } from "ethers";
+import { useEffect, useState } from "react";
+import {
+  CwmBroker,
+  CwmBroker__factory,
+  ERC20,
+  ERC20__factory,
+} from "../typechain";
 
 declare global {
   interface Window {
@@ -13,6 +16,7 @@ declare global {
 }
 
 const ADDRESS_CWM_BROKER = "0x";
+const ADDRESS_TOKEN = "0x2791bca1f2de4661ed88a30c99a7a9449aa84174";
 
 export function useContract() {
   const [signer, setSigner] = useState<JsonRpcSigner>();
@@ -38,7 +42,7 @@ export function useContract() {
 
   useEffect(() => {
     if (!signer) return;
-    const erc20 = new ERC20__factory(signer).attach(ADDRESS_CWM_BROKER);
+    const erc20 = new ERC20__factory(signer).attach(ADDRESS_TOKEN);
     setERC20Contract(erc20);
   }, [signer]);
 
