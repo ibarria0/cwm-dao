@@ -63,7 +63,7 @@ describe("Broker contract", function () {
         ).to.be.reverted;
     });
 
-    it("Should calculate withdrawl limit depending on share of token" , async function () {
+    it("Should calculate withdrawal limit depending on share of token" , async function () {
         total_booty = ethers.BigNumber.from(500).mul(mockUSDCDecimals);
         await mockUSDCToken.mint(broker.address, total_booty);
         await broker.connect(owner).mint(owner.address, 2000);
@@ -71,18 +71,18 @@ describe("Broker contract", function () {
         await broker.connect(owner).mint(addr2.address, 2000);
         await broker.connect(owner).mint(addr3.address, 2000);
         expect(
-            await broker.connect(addr1).withdrawlLimit()
+            await broker.connect(addr1).withdrawalLimit()
         ).to.equal(total_booty.div(4));
     });
 
-    it("Should calculate withdrawl limit depending on share of token even for repeating decimals" , async function () {
+    it("Should calculate withdrawal limit depending on share of token even for repeating decimals" , async function () {
         total_booty = ethers.BigNumber.from(500).mul(mockUSDCDecimals);
         await mockUSDCToken.mint(broker.address, total_booty);
         await broker.connect(owner).mint(owner.address, 2000);
         await broker.connect(owner).mint(addr1.address, 2000);
         await broker.connect(owner).mint(addr2.address, 2000);
         expect(
-            await broker.connect(addr1).withdrawlLimit()
+            await broker.connect(addr1).withdrawalLimit()
         ).to.equal(total_booty.div(3));
     });
 

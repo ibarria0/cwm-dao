@@ -54,19 +54,19 @@ contract CwmBroker is Ownable{
         cwmToken.mint(msg.sender, amount);
     }
 
-    function withdrawlLimit() public view returns (uint256 wlimit) {
+    function withdrawalLimit() public view returns (uint256 wlimit) {
         uint256 stableBalance = stableCoin.balanceOf(address(this));
-        require(stableBalance > 0, "Contract has no funds available to withdrawl");
+        require(stableBalance > 0, "Contract has no funds available for withdrawal");
         require(cwmToken.totalSupply() > 0, "No CWM in circulation");
         wlimit = (stableBalance * ((cwmToken.balanceOf(address(msg.sender))* 10 ** 25) / cwmToken.totalSupply()))/(10 ** 25);
     }
 
-    function withdrawl(uint256 _amount) public {
-        uint256 wlimit = this.withdrawlLimit();
+    function withdrawal(uint256 _amount) public {
+        uint256 wlimit = this.withdrawalLimit();
         uint256 stableBalance = stableCoin.balanceOf(address(this));
-        require(stableBalance > 0, "Contract has no funds available to withdrawl");
-        require(_amount <= wlimit, "You can only withdrawl up to limit");
-        require(_amount <= stableBalance, "You can only withdrawl up to limit");
+        require(stableBalance > 0, "Contract has no funds available for withdrawal");
+        require(_amount <= wlimit, "You can only withdraw up to limit");
+        require(_amount <= stableBalance, "You can only withdraw up to limit");
         stableCoin.safeTransfer(address(msg.sender), _amount);
     }
 
