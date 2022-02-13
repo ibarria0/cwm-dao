@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.2;
+pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "contracts/cwmToken.sol";
 
-/// @custom:security-contact ibarria0@gmail.com
 contract CwmBroker is Ownable{
     using SafeERC20 for ERC20;
     ERC20 public stableCoin;

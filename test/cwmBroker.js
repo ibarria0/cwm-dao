@@ -87,7 +87,7 @@ describe("Broker contract", function () {
     });
 
     it("User can deposit USDC and recieve CWM depending on price" , async function () {
-        amount = 5;
+        amount = 1;
         usdc_with_decimals = ethers.BigNumber.from(amount).mul(mockUSDCDecimals);
         hh_price_cents = await broker.getPriceCents();
         hardhatToken_expected_with_decimals = ethers.BigNumber.from(((amount * 100)/hh_price_cents)).mul(hardhatTokenDecimals);
