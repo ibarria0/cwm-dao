@@ -12,7 +12,7 @@ describe("Broker contract", function () {
 
 
     beforeEach(async function () {
-        [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
+        [owner, addr1, addr2, addr3, ...addrs] = await ethers.getSigners();
         vault = addrs[9]
 
         // Get the ContractFactory and Signers here.
@@ -26,10 +26,13 @@ describe("Broker contract", function () {
         mockUSDCToken= await MockUSDCToken.deploy();
         broker = await Broker.deploy(mockUSDCToken.address, hardhatToken.address, oldToken.address, vault.address);
 
+        mockUSDCDecimals = ethers.BigNumber.from(10).pow(await mockUSDCToken.decimals());
+        hardhatTokenDecimals = ethers.BigNumber.from(10).pow(await hardhatToken.decimals());
+
         await hardhatToken.grantRole(ADMIN_ROLE, owner.address);
         await hardhatToken.grantRole(MINTER_ROLE, broker.address);
-        await mockUSDCToken.mint(addr1.address, 100000);
-        await oldToken.mint(addr1.address, 100000);
+        await mockUSDCToken.mint(addr1.address, ethers.BigNumber.from(500).mul(mockUSDCDecimals));
+        await oldToken.mint(addr1.address, 10000000);
     });
 
     it("Token cannot be minted if not Broker or owner", async function () {
@@ -49,15 +52,52 @@ describe("Broker contract", function () {
         expect(await hardhatToken.balanceOf(addr1.address)).to.equal(50);
     });
 
-    it("User can deposit USDC and recieve CWM (10:1)" , async function () {
-        initial_balance = await mockUSDCToken.balanceOf(addr1.address);
+    it("Should set price in cents by owner" , async function () {
+        await broker.connect(owner).setPriceCents(12);
+        expect(await broker.getPriceCents()).to.equal(12);
+    });
+
+    it("Should NOT set price in cents by some other wallet" , async function () {
+        await expect(
+            broker.connect(addr1).setPriceCents(12)
+        ).to.be.reverted;
+    });
+
+    it("Should calculate withdrawal limit depending on share of token" , async function () {
+        total_booty = ethers.BigNumber.from(500).mul(mockUSDCDecimals);
+        await mockUSDCToken.mint(broker.address, total_booty);
+        await broker.connect(owner).mint(owner.address, 2000);
+        await broker.connect(owner).mint(addr1.address, 2000);
+        await broker.connect(owner).mint(addr2.address, 2000);
+        await broker.connect(owner).mint(addr3.address, 2000);
+        expect(
+            await broker.connect(addr1).withdrawalLimit()
+        ).to.equal(total_booty.div(4));
+    });
+
+    it("Should calculate withdrawal limit depending on share of token even for repeating decimals" , async function () {
+        total_booty = ethers.BigNumber.from(500).mul(mockUSDCDecimals);
+        await mockUSDCToken.mint(broker.address, total_booty);
+        await broker.connect(owner).mint(owner.address, 2000);
+        await broker.connect(owner).mint(addr1.address, 2000);
+        await broker.connect(owner).mint(addr2.address, 2000);
+        expect(
+            await broker.connect(addr1).withdrawalLimit()
+        ).to.equal(total_booty.div(3));
+    });
+
+    it("User can deposit USDC and recieve CWM depending on price" , async function () {
+        amount = 1;
+        usdc_with_decimals = ethers.BigNumber.from(amount).mul(mockUSDCDecimals);
+        hh_price_cents = await broker.getPriceCents();
+        hardhatToken_expected_with_decimals = ethers.BigNumber.from(((amount * 100)/hh_price_cents)).mul(hardhatTokenDecimals);
 
         //allow spending of users USDC
-        await mockUSDCToken.connect(addr1).approve(broker.address, 50);
-        //deposit 50 USD and recieve 500 CWM
-        await broker.connect(addr1).deposit(50);
-        expect(await mockUSDCToken.balanceOf(addr1.address)).to.equal(initial_balance - 50);
-        expect(await hardhatToken.balanceOf(addr1.address)).to.equal(500);
+        await mockUSDCToken.connect(addr1).approve(broker.address, usdc_with_decimals);
+        //deposit USDC and recieve CWM
+        await broker.connect(addr1).deposit(amount);
+        expect(String(await mockUSDCToken.balanceOf(vault.address))).to.equal(String(usdc_with_decimals));
+        expect(await hardhatToken.balanceOf(addr1.address)).to.equal(hardhatToken_expected_with_decimals);
     });
 
     it("User can swap cwmV1 and recieve cwmV2", async function () {
